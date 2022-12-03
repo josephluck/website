@@ -4,13 +4,13 @@ import Image from "next/image";
 
 React Hooks is one of the latest features from the React team to cause a ripple in the front-end development world. The [official docs](https://reactjs.org/docs/hooks-intro.html) do a much better job of explaining what React Hooks are for than I will be able to. I'll assume you are already familiar with them in this post.
 
-I'm working on a side-project at the moment called Internote. Internote is a distraction-free text editor with a focus on beautiful design and effortless writing. As you can imagine, subtle and slick animation plays a particularly important role in achieving this vision.
+I'm working on a side-project at the moment called [Internote](https://github.com/josephluck/internote). Internote is a distraction-free text editor with a focus on beautiful design and effortless writing. As you can imagine, subtle and slick animation plays a particularly important role in achieving this vision.
 
 I've blogged about how I designed a [unique approach to tooltips](/blog/a-unique-approach-to-tooltips) but I didn't talk much about how I went about building the animation that powers them.
 
 <Image src="/internote/tooltips2.gif" width={256} height={100} />
 
-As you can see from the gif above, there's a nice width animation that happens when the user hovers over the icon to reveal the tooltip. Each tooltip is a different width, and I didn't want to hard-code the width as if I change the font-size, spacing, or inner content over time, it wouldn't be a robust solution. I needed to calculate the inner content width at run-time and animate the width value using a transition.
+As you can see from the example above, there's a nice animation that happens when the user hovers over the icon to reveal the tooltip. Each tooltip is a different width, and I didn't want to hard-code the width for the expanded size (I change the font-size, spacing, or inner content of the tooltip over time, I would need to remember to update all the tooltips! Not a good solution). I needed to calculate the inner content width at run-time and animate the width value using a transition.
 
 I originally built this feature before React Hooks came out using the familiar class component and React lifecycle pattern. In this post, I'll detail how I went about converting this component in to React Hooks.
 
@@ -20,7 +20,7 @@ If you want to jump ahead straight to the changes, I pushed them all as a single
 
 ## If it ain't broke, don't fix it
 
-Before we start the conversion, it's important to see where we came from and potential issues that arise from the current implementation. I've copy-pasta'd the original code from Internote below:
+Before we start the conversion, it's important to see where we came from and potential issues that arise from the current implementation. I've copied the original code from Internote below:
 
 ```typescript
 import * as React from "react";
@@ -139,7 +139,7 @@ I've been slowly converting Internote to use React Hooks as a learning exercise.
 This particular component manages a single simple piece of state. React Hooks introduces a new way of handling component state: the `useState` hook. Let's start there:
 
 ```typescript
-render() {
+render() { // note, you cannot combine hooks and class components, but we're mid-refactor here 😉
   const { className, children, onClick } = this.props;
   const [isHovering, setIsHovering] = React.useState(false)
 
