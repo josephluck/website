@@ -40,7 +40,7 @@ const Wrapper = (props: HTMLAttributes<HTMLDivElement>) => {
     <>
       <style jsx>{`
         div {
-          background-color: rgba(0, 0, 0, 0.7);
+          background-color: ${theme.navigationBackground};
           backdrop-filter: blur(15px);
           position: fixed;
           top: 0;

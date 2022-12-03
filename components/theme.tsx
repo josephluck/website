@@ -72,6 +72,7 @@ function rem(val: number) {
 
 export const darkTheme = {
   background: "#000000",
+  navigationBackground: "rgba(0, 0, 0, 0.7)",
   text: "#F6F6F6",
   link: "#3291ff",
   linkHover: "rgb(77, 151, 254)",
@@ -99,6 +100,7 @@ export const darkTheme = {
 
 export const lightTheme: Theme = {
   background: "#FFFFFF",
+  navigationBackground: "rgba(255, 255, 255, 0.7)",
   text: "#373B3F",
   link: "#2C92DD",
   linkHover: "#2A59B9",
