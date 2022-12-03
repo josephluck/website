@@ -21,7 +21,7 @@ export default function Page() {
         josephreubenluck@gmail.com
       </HeadingFour>
       <HeadingTwo style={{ marginBottom: symbols.spacing._32 }}>
-        👋 I'm a product engineer based in London.
+        👋 I&apos;m a product engineer based in London.
       </HeadingTwo>
       <Paragraph style={{ marginBottom: symbols.spacing._16 }}>
         Working on mobile and web design systems for undisclosed (under NDA).

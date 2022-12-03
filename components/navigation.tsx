@@ -154,11 +154,11 @@ export const Navigation = () => (
           <Logo>JL</Logo>{" "}
         </Link>
       </LogoWrap>
-      {/* <Links>
+      <Links>
         <NavigationLink href="/blog">Blog</NavigationLink>
         <NavigationLink href="/resume">Resume</NavigationLink>
         <NavigationLink href="/recommendations">Recommendations</NavigationLink>
-      </Links> */}
+      </Links>
     </Inner>
   </Wrapper>
 );

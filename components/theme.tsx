@@ -80,7 +80,7 @@ export const darkTheme = {
   blockQuoteBackground: "transparent",
   blockQuoteBorder: "#666666",
   blockQuoteText: "#888888",
-  syntaxBackground: "#333333",
+  syntaxBackground: "#141414",
   syntaxBorder: "transparent",
   syntaxPunctuation: "#F6F6F6",
   syntaxComment: "#9CA7AD",

@@ -4,6 +4,7 @@ import { symbols, useTheme } from "./theme";
 
 export const HeadingOne = (props: HTMLAttributes<HTMLHeadingElement>) => (
   <>
+    <h1 {...props} />
     <style jsx>
       {`
         h1 {
@@ -13,12 +14,12 @@ export const HeadingOne = (props: HTMLAttributes<HTMLHeadingElement>) => (
         }
       `}
     </style>
-    <h1 {...props} />
   </>
 );
 
 export const HeadingTwo = (props: HTMLAttributes<HTMLHeadingElement>) => (
   <>
+    <h2 {...props} />
     <style jsx>
       {`
         h2 {
@@ -28,12 +29,12 @@ export const HeadingTwo = (props: HTMLAttributes<HTMLHeadingElement>) => (
         }
       `}
     </style>
-    <h2 {...props} />
   </>
 );
 
 export const HeadingThree = (props: HTMLAttributes<HTMLHeadingElement>) => (
   <>
+    <h3 {...props} />
     <style jsx>
       {`
         h3 {
@@ -43,12 +44,12 @@ export const HeadingThree = (props: HTMLAttributes<HTMLHeadingElement>) => (
         }
       `}
     </style>
-    <h3 {...props} />
   </>
 );
 
 export const HeadingFour = (props: HTMLAttributes<HTMLHeadingElement>) => (
   <>
+    <h4 {...props} />
     <style jsx>
       {`
         h4 {
@@ -58,12 +59,12 @@ export const HeadingFour = (props: HTMLAttributes<HTMLHeadingElement>) => (
         }
       `}
     </style>
-    <h4 {...props} />
   </>
 );
 
 export const Paragraph = (props: HTMLAttributes<HTMLParagraphElement>) => (
   <>
+    <p {...props} />
     <style jsx>
       {`
         p {
@@ -72,12 +73,12 @@ export const Paragraph = (props: HTMLAttributes<HTMLParagraphElement>) => (
         }
       `}
     </style>
-    <p {...props} />
   </>
 );
 
 export const Strong = (props: HTMLAttributes<HTMLSpanElement>) => (
   <>
+    <strong {...props} />
     <style jsx>
       {`
         strong {
@@ -85,65 +86,55 @@ export const Strong = (props: HTMLAttributes<HTMLSpanElement>) => (
         }
       `}
     </style>
-    <strong {...props} />
   </>
 );
 
 export const ContentHeadingOne = (
   props: HTMLAttributes<HTMLHeadingElement>
-) => {
-  const { className } = css.resolve`
-    margin: ${symbols.spacing._32} 0;
-  `;
-  return <HeadingOne {...props} className={className} />;
-};
+) => <HeadingOne {...props} style={{ margin: `${symbols.spacing._32} 0` }} />;
 
 export const ContentHeadingTwo = (
   props: HTMLAttributes<HTMLHeadingElement>
-) => {
-  const { className } = css.resolve`
-    margin: ${symbols.spacing._32} 0 ${symbols.spacing._16} 0;
-  `;
-  return <HeadingTwo {...props} className={className} />;
-};
+) => (
+  <HeadingTwo
+    {...props}
+    style={{ margin: `${symbols.spacing._32} 0 ${symbols.spacing._16} 0` }}
+  />
+);
 
 export const ContentHeadingThree = (
   props: HTMLAttributes<HTMLHeadingElement>
-) => {
-  const { className } = css.resolve`
-    margin: ${symbols.spacing._32} 0 ${symbols.spacing._16} 0;
-  `;
-  return <HeadingThree {...props} className={className} />;
-};
+) => (
+  <HeadingThree
+    {...props}
+    style={{ margin: `${symbols.spacing._32} 0 ${symbols.spacing._16} 0` }}
+  />
+);
 
 export const ContentHeadingFour = (
   props: HTMLAttributes<HTMLHeadingElement>
-) => {
-  const { className } = css.resolve`
-    margin: ${symbols.spacing._32} 0 ${symbols.spacing._16} 0;
-  `;
-  return <HeadingFour {...props} className={className} />;
-};
+) => (
+  <HeadingFour
+    {...props}
+    style={{ margin: `${symbols.spacing._32} 0 ${symbols.spacing._16} 0` }}
+  />
+);
 
 export const ContentParagraph = (
   props: HTMLAttributes<HTMLParagraphElement>
-) => {
-  const { className } = css.resolve`
-    margin: ${symbols.spacing._16} 0;
-  `;
-  return <Paragraph {...props} className={className} />;
-};
+) => <Paragraph {...props} style={{ margin: `${symbols.spacing._16} 0` }} />;
 
 export const Code = (props: HTMLAttributes<HTMLSpanElement>) => (
   <>
+    <code {...props} />
     <style jsx>
       {`
         code {
           font-family: "Overpass Mono", monospace;
+          font-size: 0.8rem;
         }
       `}
     </style>
-    <code {...props} />
   </>
 );
 
@@ -151,6 +142,7 @@ export const Hr = (props: HTMLAttributes<HTMLSpanElement>) => {
   const theme = useTheme();
   return (
     <>
+      <hr {...props} />
       <style jsx>
         {`
           hr {
@@ -160,7 +152,6 @@ export const Hr = (props: HTMLAttributes<HTMLSpanElement>) => {
           }
         `}
       </style>
-      <hr {...props} />
     </>
   );
 };
@@ -181,7 +172,7 @@ export const BlockQuote = (props: HTMLAttributes<HTMLSpanElement>) => {
             color: ${theme.blockQuoteText};
             font-style: normal;
           }
-          blockquote * {
+          blockquote p {
             margin: 0;
             font-size: inherit;
             line-height: inherit;

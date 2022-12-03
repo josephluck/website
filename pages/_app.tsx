@@ -1,19 +1,56 @@
+import { MDXProvider } from "@mdx-js/react";
 import type { AppProps } from "next/app";
 import { HTMLAttributes } from "react";
 import { Navigation } from "../components/navigation";
 import { ThemeProvider, symbols, useTheme } from "../components/theme";
+import * as Base from "../components/base";
+import Link from "next/link";
+
+const components: Record<string, (props: any) => any> = {
+  h1: ({ children }) => (
+    <Base.ContentHeadingOne>{children}</Base.ContentHeadingOne>
+  ),
+  h2: ({ children }) => (
+    <Base.ContentHeadingTwo>{children}</Base.ContentHeadingTwo>
+  ),
+  h3: ({ children }) => (
+    <Base.ContentHeadingThree>{children}</Base.ContentHeadingThree>
+  ),
+  h4: ({ children }) => (
+    <Base.ContentHeadingFour>{children}</Base.ContentHeadingFour>
+  ),
+  p: ({ children }) => (
+    <Base.ContentParagraph>{children}</Base.ContentParagraph>
+  ),
+  hr: ({ children }) => <Base.Hr>{children}</Base.Hr>,
+  a: ({ children, href }) => {
+    return href.indexOf("http") > -1 ? (
+      <a href={href} target="_blank" rel="noreferrer">
+        {children}
+      </a>
+    ) : (
+      <Link href={href}>{children}</Link>
+    );
+  },
+  strong: ({ children }) => <span>{children}</span>,
+  blockquote: ({ children }) => <Base.BlockQuote>{children}</Base.BlockQuote>,
+  code: ({ children }) => <Base.Code>{children}</Base.Code>,
+  li: ({ children }) => <Base.ListItem>{children}</Base.ListItem>,
+};
 
 export default function MyApp({ Component, pageProps }: AppProps) {
   return (
     <>
       <ThemeProvider>
         <GlobalStyle />
-        <Layout>
-          <Navigation />
-          <Content>
-            <Component {...pageProps} />
-          </Content>
-        </Layout>
+        <MDXProvider components={components}>
+          <Layout>
+            <Navigation />
+            <Content>
+              <Component {...pageProps} />
+            </Content>
+          </Layout>
+        </MDXProvider>
       </ThemeProvider>
     </>
   );
@@ -187,7 +224,6 @@ const GlobalStyle = () => {
       .language-json .token.number,
       code[class*="language-css"] {
         color: ${theme.syntaxKeyword};
-        font-weight: ${symbols.fontWeight._700};
       }
 
       .token.deleted,
@@ -217,7 +253,6 @@ const GlobalStyle = () => {
       .token.function,
       .language-json .token.property {
         color: ${theme.syntaxClassName};
-        font-weight: ${symbols.fontWeight._700};
       }
 
       .token.tag,
