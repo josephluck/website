@@ -139,7 +139,7 @@ export const NavigationLink = ({
 }) => {
   return (
     <NavLink active={false}>
-      <Link href={href} passHref prefetch>
+      <Link href={href} passHref>
         {children}
       </Link>
     </NavLink>
@@ -150,15 +150,15 @@ export const Navigation = () => (
   <Wrapper>
     <Inner>
       <LogoWrap>
-        <Link href="/" passHref prefetch>
+        <Link href="/" passHref>
           <Logo>JL</Logo>{" "}
         </Link>
       </LogoWrap>
-      <Links>
+      {/* <Links>
         <NavigationLink href="/blog">Blog</NavigationLink>
         <NavigationLink href="/resume">Resume</NavigationLink>
         <NavigationLink href="/recommendations">Recommendations</NavigationLink>
-      </Links>
+      </Links> */}
     </Inner>
   </Wrapper>
 );
