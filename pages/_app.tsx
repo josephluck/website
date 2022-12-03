@@ -32,7 +32,7 @@ const components: Record<string, (props: any) => any> = {
       <Link href={href}>{children}</Link>
     );
   },
-  strong: ({ children }) => <span>{children}</span>,
+  strong: ({ children }) => <Base.Strong>{children}</Base.Strong>,
   blockquote: ({ children }) => <Base.BlockQuote>{children}</Base.BlockQuote>,
   code: ({ children }) => <Base.Code>{children}</Base.Code>,
   li: ({ children }) => <Base.ListItem>{children}</Base.ListItem>,
