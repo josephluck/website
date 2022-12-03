@@ -1,3 +1,4 @@
+import Head from "next/head";
 import * as React from "react";
 import {
   HeadingOne,
@@ -10,6 +11,9 @@ import { symbols } from "../components/theme";
 export default function Page() {
   return (
     <>
+      <Head>
+        <title>Joseph Luck - Product Engineer</title>
+      </Head>
       <HeadingOne style={{ marginBottom: symbols.spacing._16 }}>
         Joseph Luck
       </HeadingOne>

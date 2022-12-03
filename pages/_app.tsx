@@ -1,22 +1,37 @@
-"use client";
-
-import React, { HTMLAttributes } from "react";
-import { symbols, ThemeProvider, useTheme } from "../components/theme";
+import type { AppProps } from "next/app";
+import { HTMLAttributes } from "react";
 import { Navigation } from "../components/navigation";
+import { ThemeProvider, symbols, useTheme } from "../components/theme";
 
+export default function MyApp({ Component, pageProps }: AppProps) {
+  return (
+    <>
+      <ThemeProvider>
+        <GlobalStyle />
+        <Layout>
+          <Navigation />
+          <Content>
+            <Component {...pageProps} />
+          </Content>
+        </Layout>
+      </ThemeProvider>
+    </>
+  );
+}
 const Layout = (props: HTMLAttributes<HTMLDivElement>) => (
   <>
+    <div {...props} />
     <style jsx>{`
       div {
         position: relative;
       }
     `}</style>
-    <div {...props} />
   </>
 );
 
 const Content = (props: HTMLAttributes<HTMLDivElement>) => (
   <>
+    <div {...props} />
     <style jsx>{`
       div {
         padding: ${symbols.spacing._16};
@@ -29,47 +44,8 @@ const Content = (props: HTMLAttributes<HTMLDivElement>) => (
         }
       }
     `}</style>
-    <div {...props} />
   </>
 );
-
-export default function LayoutPage({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  return (
-    <html>
-      <head>
-        <meta name="theme-color" content="#000" />
-        <meta
-          name="description"
-          content="A software engineer with a expertise in UI design, user experience and functional programming in languages such as JavaScript and TypeScript."
-        />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <link
-          href="https://fonts.googleapis.com/css?family=Work+Sans:300,400,500,700&display=swap"
-          rel="stylesheet"
-        />
-        <link
-          href="https://fonts.googleapis.com/css?family=Overpass+Mono:400,700"
-          rel="stylesheet"
-        />
-        <title>Joseph Luck - Product Engineer</title>
-      </head>
-
-      <body>
-        <ThemeProvider>
-          <GlobalStyle />
-          <Layout>
-            <Navigation />
-            <Content>{children}</Content>
-          </Layout>
-        </ThemeProvider>
-      </body>
-    </html>
-  );
-}
 
 const GlobalStyle = () => {
   const theme = useTheme();
