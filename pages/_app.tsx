@@ -71,9 +71,9 @@ const Content = (props: HTMLAttributes<HTMLDivElement>) => (
     <div {...props} />
     <style jsx>{`
       div {
+        margin: 50px auto 0;
         padding: ${symbols.spacing._16};
         max-width: 768px;
-        margin: 0 auto;
       }
       @media (min-width: ${symbols.media.tablet}) {
         div {

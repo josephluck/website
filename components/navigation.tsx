@@ -40,10 +40,11 @@ const Wrapper = (props: HTMLAttributes<HTMLDivElement>) => {
     <>
       <style jsx>{`
         div {
-          background-color: ${theme.background};
-          position: sticky;
+          background-color: rgba(0, 0, 0, 0.7);
+          backdrop-filter: blur(15px);
+          position: fixed;
           top: 0;
-          border-bottom: solid 1px ${theme.border};
+          // border-bottom: solid 1px ${theme.border};
           display: flex;
           align-items: center;
           overflow: auto;
