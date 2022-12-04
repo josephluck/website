@@ -1,3 +1,7 @@
+import { BlogHeader } from "../../components/blog-header";
+
+<BlogHeader wordCount={666} title="Generic React components" />
+
 A colleague of mine showed me a neat little unknown feature of Typescript in combination with React that makes it a delight to achieve type-safe generic React components.
 
 ## Generic React components
@@ -156,3 +160,5 @@ export default () {
 ```
 
 By passing the generic type argument inside the TSX via `<Slider<Cat> />` we can omit the intermediary constant. It looks a little weird but works a charm!
+
+<BlogHeader />

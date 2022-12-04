@@ -1,3 +1,10 @@
+import { BlogHeader } from "../../components/blog-header";
+
+<BlogHeader
+  wordCount={1979}
+  title="Minimal, simple, functional, immutable, flexible state management"
+/>
+
 # Minimal, simple, functional, immutable, flexible state management
 
 Enough buzz words for you!?!
@@ -48,7 +55,7 @@ Cool, that's pretty simple too. What about subscriptions?
 ```typescript
 const store = makeStore({ count: 0 });
 const add = store.createMutator((state, by: number) => state.count + by);
-store.subscribe(state => console.log("State updated:", state));
+store.subscribe((state) => console.log("State updated:", state));
 
 add(2);
 ```
@@ -68,7 +75,7 @@ interface CountState {
   readonly count: number;
 }
 const initialCountState: CountState = {
-  count: 0
+  count: 0,
 };
 
 export interface AddAction extends Action<"Add"> {
@@ -76,7 +83,7 @@ export interface AddAction extends Action<"Add"> {
 }
 const addAction = (by: number): AddAction => ({
   by,
-  type: "Add"
+  type: "Add",
 });
 
 const countReducer: Reducer<State, AddAction> = (
@@ -87,7 +94,7 @@ const countReducer: Reducer<State, AddAction> = (
     case "Add": {
       return {
         ...state,
-        count: state.count + action.by
+        count: state.count + action.by,
       };
     }
     default:
@@ -142,11 +149,11 @@ Responsibility one, done!
 Now this one is the tricky one. How do we provide a way for the user of the library to easily, predictably and simply update the state in the store without forcing them to create lots of boilerplate whilst maintaining 100% type safety? It's a pretty big ask, but let's start off small and build it up:
 
 ```typescript
-const createMutator = <Fn extends (state: S, ...args: any[]) => any>(
-  fn: Fn
-) => (...args: any[]): S => {
-  return (_state = fn(_state, ...args));
-};
+const createMutator =
+  <Fn extends (state: S, ...args: any[]) => any>(fn: Fn) =>
+  (...args: any[]): S => {
+    return (_state = fn(_state, ...args));
+  };
 ```
 
 There's a couple things to note here. The first is that we're defining the `createMutator` function as a function "builder", that is, it wraps a provided function and return a new function that can be called, and passes the latest state and callees arguments in. This means that whoever calls the mutator doesn't have to pass the latest state in every time. Neat.
@@ -156,15 +163,15 @@ However, there's a few things wrong with this, namely that the state can be muta
 Let's fix the first problem by introducing Immer. Immer is a fantastic library that masquerades immutability behind a mutable API. It lets developers change data in any manner they see fit whilst retaining immutability under the hood. It's perfect for our simple state management library. Let's introduce it and change our `createMutator` function:
 
 ```typescript
-const createMutator = <Fn extends (state: S, ...args: any[]) => any>(
-  fn: Fn
-) => (...args: any[]): S => {
-  const newState = immer(_state, draft => {
-    fn(draft as S, ...args);
-  });
-  _state = newState;
-  return newState;
-};
+const createMutator =
+  <Fn extends (state: S, ...args: any[]) => any>(fn: Fn) =>
+  (...args: any[]): S => {
+    const newState = immer(_state, (draft) => {
+      fn(draft as S, ...args);
+    });
+    _state = newState;
+    return newState;
+  };
 ```
 
 > If you're unfamiliar with Immer, please give the official docs a once over, they're really good!
@@ -192,15 +199,15 @@ export type RemoveFirstFromTuple<T extends any[]> = T["length"] extends 0
   ? I
   : [];
 
-const createMutator = <Fn extends (state: S, ...args: any[]) => any>(
-  fn: Fn
-) => (...args: RemoveFirstFromTuple<Parameters<typeof fn>>): S => {
-  const newState = immer(_state, draft => {
-    fn(draft as S, ...args);
-  });
-  _state = newState;
-  return newState;
-};
+const createMutator =
+  <Fn extends (state: S, ...args: any[]) => any>(fn: Fn) =>
+  (...args: RemoveFirstFromTuple<Parameters<typeof fn>>): S => {
+    const newState = immer(_state, (draft) => {
+      fn(draft as S, ...args);
+    });
+    _state = newState;
+    return newState;
+  };
 ```
 
 What we're doing here is plucking out the arguments of the mutator's function's implementation (denoted as `Fn` and `typeof Fn`) as a tuple of types (using `Parameters<typeof fn>`), and removing the first type from the tuple to be left with a resultant tuple of the remaining arguments (using a combination of conditional types and `infer I`). We then pass this resultant type to `...args` to complete the inference. Neat! That wraps up changing data in a fully type-safe manner.
@@ -244,18 +251,18 @@ Now all that's left is to notify the subscribers whenever data changes, for that
 
 ```typescript
 const notifySubscribers = (prevState: S, newState: S) =>
-  _subscriptions.forEach(fn => fn(prevState, newState));
+  _subscriptions.forEach((fn) => fn(prevState, newState));
 
-const createMutator = <Fn extends (state: S, ...args: any[]) => any>(
-  fn: Fn
-) => (...args: RemoveFirstFromTuple<Parameters<typeof fn>>): S => {
-  const newState = immer(_state, draft => {
-    fn(draft as S, ...args);
-  });
-  notifySubscribers(_state, newState);
-  _state = newState;
-  return newState;
-};
+const createMutator =
+  <Fn extends (state: S, ...args: any[]) => any>(fn: Fn) =>
+  (...args: RemoveFirstFromTuple<Parameters<typeof fn>>): S => {
+    const newState = immer(_state, (draft) => {
+      fn(draft as S, ...args);
+    });
+    notifySubscribers(_state, newState);
+    _state = newState;
+    return newState;
+  };
 ```
 
 And that wraps up subscribers!
@@ -281,24 +288,25 @@ const stately = <S>(state: S) => {
   let _subscriptions: Subscription[] = [];
 
   const notifySubscribers = (prevState: S, newState: S) =>
-    _subscriptions.forEach(fn => fn(prevState, newState));
+    _subscriptions.forEach((fn) => fn(prevState, newState));
 
-  const createMutator = <Fn extends (state: S, ...args: any[]) => any>(
-    fn: Fn
-  ) => (...args: RemoveFirstFromTuple<Parameters<typeof fn>>): S => {
-    const newState = immer(_state, draft => {
-      fn(draft as S, ...args);
-    });
-    notifySubscribers(_state, newState);
-    _state = newState;
-    return newState;
-  };
+  const createMutator =
+    <Fn extends (state: S, ...args: any[]) => any>(fn: Fn) =>
+    (...args: RemoveFirstFromTuple<Parameters<typeof fn>>): S => {
+      const newState = immer(_state, (draft) => {
+        fn(draft as S, ...args);
+      });
+      notifySubscribers(_state, newState);
+      _state = newState;
+      return newState;
+    };
 
-  const createEffect = <Fn extends (state: S, ...args: any[]) => any>(
-    fn: Fn
-  ) => (
-    ...args: RemoveFirstFromTuple<Parameters<typeof fn>>
-  ): ReturnType<typeof fn> => fn(_state, ...args);
+  const createEffect =
+    <Fn extends (state: S, ...args: any[]) => any>(fn: Fn) =>
+    (
+      ...args: RemoveFirstFromTuple<Parameters<typeof fn>>
+    ): ReturnType<typeof fn> =>
+      fn(_state, ...args);
 
   const subscribe = (sub: Subscription): Unsubscribe => {
     _subscriptions = [..._subscriptions, sub];
@@ -313,7 +321,7 @@ const stately = <S>(state: S) => {
     createMutator,
     createEffect,
     subscribe,
-    getState: () => _state
+    getState: () => _state,
   };
 };
 
@@ -323,3 +331,5 @@ export default stately;
 ```
 
 I've published this as an NPM library which you can find here: https://github.com/josephluck/stately. Please let me know if you have any suggestions or problems by raising an issue!
+
+<BlogHeader />

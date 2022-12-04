@@ -6,14 +6,13 @@ import {
   HeadingTwo,
   Paragraph,
 } from "../components/base";
+import { HeadTitle } from "../components/head-title";
 import { symbols } from "../components/theme";
 
 export default function Page() {
   return (
     <>
-      <Head>
-        <title>Joseph Luck - Product Engineer</title>
-      </Head>
+      <HeadTitle>Product engineer</HeadTitle>
       <HeadingOne style={{ marginBottom: symbols.spacing._16 }}>
         Joseph Luck
       </HeadingOne>
@@ -24,8 +23,8 @@ export default function Page() {
         👋 I&apos;m a product engineer based in London.
       </HeadingTwo>
       <Paragraph style={{ marginBottom: symbols.spacing._16 }}>
-        Working on mobile and web design systems for undisclosed (under NDA).
-        Previously senior engineer at Mettle by Natwest.
+        Building mobile and web design systems currently under NDA 🤐.
+        Previously lead engineer at Mettle by Natwest.
       </Paragraph>
       <Paragraph style={{ marginBottom: symbols.spacing._16 }}>
         Passionate about design, user experience and functional programming.

@@ -1,3 +1,10 @@
+import { BlogHeader } from "../../components/blog-header";
+
+<BlogHeader
+  wordCount={2138}
+  title="Creating a paginated fetcher with React Hooks"
+/>
+
 # Creating a paginated fetcher with React Hooks
 
 In this post I will be detailing how I created a custom hook in React that abstracts the complexities of dealing with fetching paginated data for an infinite-scroll experience.
@@ -363,3 +370,5 @@ export const usePaginatedFetcher = <Fn extends Fetcher>(
 # Next steps
 
 This paginated data hook isn't perfect. For one, it relies on the response of the data from the back-end being consistent, and makes some assumptions based on it, and it cannot be pre-loaded with a list of ids, so the first page will always be fetched, even if there's already some cached state from previous fetches lying around in a global store. However hopefully this gives you an idea of how React Hooks can be used to create powerful and useful abstractions for what's normally a pretty difficult state management problem to share across many components easily.
+
+<BlogHeader />
