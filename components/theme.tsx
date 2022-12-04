@@ -1,5 +1,10 @@
 /* eslint-disable react/display-name */
-import React, { HTMLAttributes, useContext } from "react";
+import React, {
+  HTMLAttributes,
+  useCallback,
+  useContext,
+  useState,
+} from "react";
 
 export const symbols = {
   font: {
@@ -96,6 +101,8 @@ export const darkTheme = {
   syntaxFunction: "#67A1E2",
   syntaxHighlightLine: "rgba(193, 222, 241, 0.2)",
   syntaxLineNumberBorder: "#121212",
+  toggleSlider: "#222222",
+  toggleCircle: "#888888",
 };
 
 export const lightTheme: Theme = {
@@ -124,6 +131,8 @@ export const lightTheme: Theme = {
   syntaxFunction: "#67A1E2",
   syntaxHighlightLine: "rgba(193, 222, 241, 0.2)",
   syntaxLineNumberBorder: "#E6E6E6",
+  toggleSlider: "#E6E6E6",
+  toggleCircle: "#808b91",
 };
 
 /**
@@ -140,33 +149,29 @@ export const defaultTheme = isDarkMode ? darkTheme : lightTheme;
 
 export type Theme = typeof darkTheme;
 
-const ThemeContext = React.createContext<Theme>(defaultTheme);
+const ThemeContext = React.createContext<{
+  theme: Theme;
+  name: "dark" | "light";
+  setTheme: (theme: "light" | "dark") => void;
+}>({
+  name: isDarkMode ? "dark" : "light",
+  theme: defaultTheme,
+  setTheme: () => {},
+});
 
 export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
+  const [name, setTheme] = useState<"dark" | "light">(
+    isDarkMode ? "dark" : "light"
+  );
+  const theme = name === "light" ? lightTheme : darkTheme;
+
   return (
-    <ThemeContext.Provider value={defaultTheme}>
+    <ThemeContext.Provider value={{ theme, name, setTheme }}>
       {children}
     </ThemeContext.Provider>
   );
 };
 
-export const useTheme = () => useContext(ThemeContext);
-
-export const themedComponent = (
-  Component: keyof HTMLElementTagNameMap,
-  stylesFn: (theme: Theme) => string
-): React.ComponentType<HTMLAttributes<typeof Component>> => {
-  return ({ children, ...attributes }: HTMLAttributes<typeof Component>) => {
-    const theme = useTheme();
-    return (
-      <>
-        <style jsx>{`
-          ${Component} {
-            ${stylesFn(theme)}
-          }
-        `}</style>
-        <Component {...(attributes as any)}>{children as any}</Component>
-      </>
-    );
-  };
-};
+export const useSetTheme = () => useContext(ThemeContext).setTheme;
+export const useTheme = () => useContext(ThemeContext).theme;
+export const useThemeName = () => useContext(ThemeContext).name;

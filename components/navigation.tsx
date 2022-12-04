@@ -1,7 +1,8 @@
 import * as React from "react";
-import { symbols, useTheme } from "./theme";
+import { symbols, useSetTheme, useTheme, useThemeName } from "./theme";
 import Link from "next/link";
 import { HTMLAttributes } from "react";
+import { Toggle } from "./toggle";
 
 const NavLink = ({
   children,
@@ -44,7 +45,6 @@ const Wrapper = (props: HTMLAttributes<HTMLDivElement>) => {
           backdrop-filter: blur(15px);
           position: fixed;
           top: 0;
-          // border-bottom: solid 1px ${theme.border};
           display: flex;
           align-items: center;
           overflow: auto;
@@ -147,19 +147,29 @@ export const NavigationLink = ({
   );
 };
 
-export const Navigation = () => (
-  <Wrapper>
-    <Inner>
-      <LogoWrap>
-        <Link href="/" passHref>
-          <Logo>JL</Logo>{" "}
-        </Link>
-      </LogoWrap>
-      <Links>
-        <NavigationLink href="/blog">Blog</NavigationLink>
-        <NavigationLink href="/resume">Resume</NavigationLink>
-        <NavigationLink href="/recommendations">Recommendations</NavigationLink>
-      </Links>
-    </Inner>
-  </Wrapper>
-);
+export const Navigation = () => {
+  const setTheme = useSetTheme();
+  const themeName = useThemeName();
+  return (
+    <Wrapper>
+      <Inner>
+        <LogoWrap>
+          <Link href="/" passHref>
+            <Logo>JL</Logo>{" "}
+          </Link>
+        </LogoWrap>
+        <Links>
+          <NavigationLink href="/blog">Blog</NavigationLink>
+          <NavigationLink href="/resume">Resume</NavigationLink>
+          <NavigationLink href="/recommendations">
+            Recommendations
+          </NavigationLink>
+          <Toggle
+            onToggle={() => setTheme(themeName === "light" ? "dark" : "light")}
+            active={themeName === "light"}
+          />
+        </Links>
+      </Inner>
+    </Wrapper>
+  );
+};
