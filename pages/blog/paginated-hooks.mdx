@@ -1,32 +1,32 @@
 # Creating a paginated fetcher with React Hooks
 
-In this post I will be detailing how I tackled creating a custom hook in React that abstracts the complexities of dealing with fetching paginated data for an infinite-scroll experience.
+In this post I will be detailing how I created a custom hook in React that abstracts the complexities of dealing with fetching paginated data for an infinite-scroll experience.
 
 ## The user experience
 
-You'll likely be familiar with the typical infinite scroll list-view user-experience that's commonplace on mobile, however I'll list out the requirements for the eventual end-user experience for brevity:
+You'll likely be familiar with the typical infinite scroll user experience that's often seen in mobile applications. We'll begin by listing out the requirements for the eventual user experience:
 
-- Initial loading spinner state when first visiting the interface and there are no results yet.
+- Initial loading spinner state when there are no results yet.
 - Lazy-load / infinite scroll to fetch more results when nearing the end of the list.
-- Loading state for when more results are loading.
+- Loading state for when more results are being fetched.
 - Pull-to-refresh when at the top of the list and scrolling up.
 
 ## The problem
 
-Despite the user-experience being pretty simple, dealing will all of the states for fetching paginated data is actually pretty difficult. Let's take a look at a few of the states and methods needed to express the user-experience:
+Despite the user-experience being relatively simple, dealing will all of the states for fetching paginated data is actually pretty difficult. Let's take a look at a few of the states and methods needed to implement the user experience:
 
 - Loading state for when nothing has been fetched yet.
-- Loading state for when there are already results and the next page is loading.
-- Refreshing state for when the user issues a pull-to-refresh.
+- Loading state for when there are already results and the next set of results are being fetched.
+- Refreshing state for when the user triggers a pull-to-refresh.
 - Error state for if a fetch goes wrong.
 - List of results that have been returned from fetching. For infinite scroll, the results should be appended to the existing list of results.
 - The total count of all records available from the back-end.
 - State for whether the user has reached the end of the list.
 - Method for fetching the initial page.
-- Method for refreshing the list.
 - Method for fetching the next page.
+- Method for refreshing the list.
 
-In an application that has many instances of paginated data, it makes sense to have a shared utility to manage and keep track of the state and provide these methods for managing paginated data. However, the utility can't know much about the actual data itself, or it would be difficult to be shared across many types of data. So, on top of the states above, the utility needs to have the following traits:
+In an application that has many instances of paginated data, it makes sense to share the logic for managing and keep track of the state and to provide methods for managing paginated data. However, the utility can't make any assumptions the actual data itself or where it's fetched from otherwise it would be difficult to be shared across many types of data. So, on top of the states above, the utility needs to have the following traits:
 
 - Can't know about the shape of the returned data. This means the utility can be flexible for different paginated data shapes.
 - Can't know where the data is stored once the data has been returned from the request. This means that the data can be cached.
@@ -36,11 +36,11 @@ As you can see there's a lot of internal complexity for this kind of utility but
 
 ## The code
 
-I'll be building the paginated utility with React Hooks, and I'll assume that you're familiar with them in the rest of this post. If you're not, I highly recommend an afternoon with coffee and the official React documentation for hooks which do a much better job of explaining hooks than I can!
+I'll be building the paginated utility with React Hooks, and I'll assume that you're familiar with them in the rest of this post. If you're not, I highly recommend an afternoon with coffee and the official React documentation for hooks which do a much better job of explaining hooks than I can.
 
 ## The external API
 
-I typically start with the external API of an abstraction, which helps formulate a blueprint of what the internals requirements of it. Let's sketch something out:
+I typically start with the external API, which helps formulate a blueprint of what the internals requirements will look like. Let's sketch something out:
 
 ```typescript
 const {
@@ -86,7 +86,7 @@ So I've sketched out the initial list of things that an external component using
 }
 ```
 
-> The reason that fetchInitial, fetchNextPage and refresh do not have any arguments is because these functions are inferred from the ReturnType of the passed fetcher function. More on the specifics of how this is achieved later in the post.
+> The reason that `fetchInitial`, `fetchNextPage` and `refresh` do not have any arguments is because these functions are inferred from the return type of the passed fetcher function. More on the specifics of how this is achieved later in the post.
 
 The last thing to map out is what the fetcher function looks like. The `usePaginatedFetcher` hook takes in a function as the first argument that is responsible for actually fetching the data from somewhere. This function receives `from` and `size` as the first two arguments (which represent which index of records the back-end should start returning, and how many records to return respectively). The fetcher is then expected to return another function that performs the fetching.
 
@@ -95,6 +95,8 @@ The reason the fetcher is structured as a higher-order function is because the h
 ```typescript
 type Fetcher = Fn extends (from: number, size: number) => (...args: any[]) => Promise<Paginated<any>>
 ```
+
+> `...args: any[]` could contain things like filtering, searching, etc that would later be used by the fetching function itself
 
 Where `Paginated` is an interface defined as:
 
@@ -105,16 +107,19 @@ interface Paginated<T> {
 }
 ```
 
-> Contradictory to what I stated above where the paginated fetcher hook mustn't know about the shape of the returned data, I am assuming that the API returns a response in the `Paginated` structure. Of course, your app will likely be different to this so feel free to amend as necessary, or refactor the hook to be even more generic.
+> Contradictory to what I stated above - We are assuming that the API returns a response in the `Paginated` structure. Of course, your app will likely be different to this so feel free to amend as necessary, or refactor the hook to be even more generic.
 
 So now that the external API is defined, let's move on to the internals.
 
 ## Handling state
 
-First things first, let's set up a bunch of `useState` hooks and derived state to manage the internal (and some exposed) states:
+First things first, let's set up the necessary `useState` hooks and derived state to manage the internal (and some exposed) states:
 
 ```typescript
-type Fetcher = Fn extends (from: number, size: number) => (...args: any[]) => Promise<Paginated<any>>
+type Fetcher = (
+  from: number,
+  size: number
+) => (...args: any[]) => Promise<Paginated<any>>;
 
 const usePaginatedFetcher = <Fn extends Fetcher>(fetch: Fn) => {
   const [ids, setIds] = useState<string[]>([]);
@@ -133,9 +138,9 @@ const usePaginatedFetcher = <Fn extends Fetcher>(fetch: Fn) => {
     loadingInitial,
     refreshing,
     loadingNextPage,
-    endReached
-  }
-}
+    endReached,
+  };
+};
 ```
 
 > Though we haven't tied any logic to these states yet, but by defining them, we've provided 7 out of 10 of our external APIs!
@@ -146,26 +151,27 @@ And fetching data goes as follows:
 
 ```typescript
 const fetchData = useCallback(
-  (initial: boolean) => async (...args: any[]) => {
-    const from = initial ? 0 : ids.length;
-    try {
-      const response = await fetch(from, size)(...args);
-      const newIds = response.results.map(result => result[idKeyName]);
-      setIds(initial || newIds.length === 0 ? newIds : [...ids, ...newIds]);
-      setCount(response.count);
-      setLoaded(true);
-      return response;
-    } catch (err) {
-      setErrored(true);
-    }
-  },
+  (initial: boolean) =>
+    async (...args: any[]) => {
+      const from = initial ? 0 : ids.length;
+      try {
+        const response = await fetch(from, size)(...args);
+        const newIds = response.results.map((result) => result[idKeyName]);
+        setIds(initial || newIds.length === 0 ? newIds : [...ids, ...newIds]);
+        setCount(response.count);
+        setLoaded(true);
+        return response;
+      } catch (err) {
+        setErrored(true);
+      }
+    },
   [fetch, ids.length, idKeyName]
 );
 ```
 
-There's a couple things to note here. The first is that the `fetchData` function is a higher-order function that takes as it's first argument `initial: boolean`. This boolean is required because the hook exposes methods `fetchInitial` and `refresh`, both of which which when called fetches data and replaces the existing list, aka, doesn't infinite scroll. The `initial` boolean is used within the `setIds` call to determine whether to append the results to the existing list (in the case of infinite scroll) or replace the results in the list.
+There's a couple things to note here. The first is that the `fetchData` function is a higher-order function that takes as it's first argument `initial: boolean`. This boolean is required because the hook exposes methods `fetchInitial` and `refresh`, both of which fetch data and _replaces_ the existing list. The `initial` boolean is used within the `setIds` call to determine whether to append the results to the existing list (in the case of infinite scroll) or replace the results in the list.
 
-The second thing to note is that there's a variable I haven't introduced yet, `idKeyName`. The hook isn't allowed to know about the structure of the returned data, yet it's expected to keep track of the list of results to ve displayed in the UI. These two things are contradictory of course, so there needs to be some way for the hook to know how to uniquely identify a particular result. To achieve this, a `idKeyName` is passed in as a new argument to the hook and is used to map a unique identifier per record. The list of these identifiers are managed in the state of the hook and passed back out so that the component can map over them and render the results:
+The second thing to note is that there's a variable I haven't introduced yet, `idKeyName`. The hook isn't allowed to know about the structure of the returned data, yet it's expected to keep track of the list of results. These two things are contradictory of course, so there needs to be some way for the hook to know how to uniquely identify a particular result. To achieve this, a `idKeyName` is passed in as a new argument to the hook and is used to map a unique identifier per record. The list of these identifiers are managed in the state of the hook and passed back out so that the component can map over them and render the results:
 
 ```typescript
 const usePaginatedFetcher = <Fn extends Fetcher>(fetch: Fn, idKeyName: string) => ...
@@ -225,7 +231,10 @@ Where did `as Return` come from? Well since these methods are called externally,
 The fetcher function type looks like this:
 
 ```typescript
-type Fetcher = Fn extends (from: number, size: number ) => (...args: any[]) => Promise<Paginated<any>>
+type Fetcher = (
+  from: number,
+  size: number
+) => (...args: any[]) => Promise<Paginated<any>>;
 ```
 
 However, we want the methods exposed by the hook to look something like this:
@@ -234,7 +243,7 @@ However, we want the methods exposed by the hook to look something like this:
 type FetchNextPage = (...args: any[]) => Promise<Paginated<any>>;
 ```
 
-With the arguments inferred of course, such that if the fetcher function requires any additional arguments such as ids, search, filter sort etc, the callee of the fetcher knows about it. Typescript comes with a handy type utility called `ReturnType` that we can use to our advantage:
+With the arguments inferred of course, such that if the fetcher function requires any additional arguments such as ids, search, filter sort etc, the callee of the fetcher knows about it. TypeScript comes with a handy type utility called `ReturnType` that we can use to our advantage:
 
 ```typescript
 export const usePaginatedFetcher = <Fn extends Fetcher>(
@@ -276,19 +285,20 @@ export const usePaginatedFetcher = <Fn extends Fetcher>(
   const endReached = ids.length >= count;
 
   const fetchData = useCallback(
-    (initial: boolean) => async (...args: any[]) => {
-      const from = initial ? 0 : ids.length;
-      try {
-        const response = await fetch(from, size)(...args);
-        const newIds = response.results.map(result => result[idKeyName]);
-        setIds(initial || newIds.length === 0 ? newIds : [...ids, ...newIds]);
-        setCount(response.count);
-        setLoaded(true);
-        return response;
-      } catch (err) {
-        setErrored(true);
-      }
-    },
+    (initial: boolean) =>
+      async (...args: any[]) => {
+        const from = initial ? 0 : ids.length;
+        try {
+          const response = await fetch(from, size)(...args);
+          const newIds = response.results.map((result) => result[idKeyName]);
+          setIds(initial || newIds.length === 0 ? newIds : [...ids, ...newIds]);
+          setCount(response.count);
+          setLoaded(true);
+          return response;
+        } catch (err) {
+          setErrored(true);
+        }
+      },
     [fetch, ids.length, idKeyName]
   );
 
@@ -345,11 +355,11 @@ export const usePaginatedFetcher = <Fn extends Fetcher>(
     endReached,
     fetchInitial,
     fetchNextPage,
-    refresh
+    refresh,
   };
 };
 ```
 
 # Next steps
 
-Of course, this paginated data hook isn't perfect. For one, it relies on the response of the data from the back-end being consistent, and makes some assumptions based on it, and it cannot be pre-loaded with a list of ids, so the first page will always be fetched, even if there's already some cached state from previous fetches lying around in a global store. However hopefully this gives you an idea of how React Hooks can be used to create powerful and useful abstractions for what's normally a pretty difficult state management problem to share across many components easily.
+This paginated data hook isn't perfect. For one, it relies on the response of the data from the back-end being consistent, and makes some assumptions based on it, and it cannot be pre-loaded with a list of ids, so the first page will always be fetched, even if there's already some cached state from previous fetches lying around in a global store. However hopefully this gives you an idea of how React Hooks can be used to create powerful and useful abstractions for what's normally a pretty difficult state management problem to share across many components easily.
