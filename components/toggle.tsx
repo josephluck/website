@@ -1,4 +1,4 @@
-import { useTheme } from "./theme";
+import { symbols, useTheme } from "./theme";
 
 const height = 24;
 const width = 46;
@@ -25,11 +25,16 @@ export const Toggle = ({
             width: ${width}px;
             border-radius: 1000px;
             background-color: ${theme.toggleSlider};
-            margin: 0 0 0 1rem;
+            margin: 0 0 0 ${symbols.spacing._8};
             padding: ${gap}px;
             outline: none;
             border: 0;
             position: relative;
+          }
+          @media (min-width: ${symbols.media.tablet}) {
+            .container {
+              margin: 0 0 0 ${symbols.spacing._16};
+            }
           }
           .circle {
             width: ${circleSize}px;
