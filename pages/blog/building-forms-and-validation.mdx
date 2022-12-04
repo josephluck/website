@@ -5,94 +5,27 @@ import Image from "next/image";
 
 In this post I'll be detailing how I approached form state management and validation for a side-project of mine, [Urban Jungle](https://github.com/josephluck/urban-jungle).
 
-Typically in side projects, I like identify problems and solve them in novel ways, ways that I would not usually have the fortune to explore in my professional day job as a software engineer. Often by exploring new solutions, I further my understanding of the problem in a way that generalises to solutions I _do_ need to explore in my day to day.
+Typically in side projects, I like identify problems and solve them in new ways. Often by doing this, I expand my repertoire of skills in a way that generalises to other problems I come across.
 
 ## What's the problem we're solving?
 
-Urban Jungle doesn't have _that many_ forms, however I wanted to build an abstraction in React that would allow me to define a data schema in TypeScript and to be able to build state management and validation on top of that well-defined schema in a way that afforded great editor auto completion and full type safety.
+Urban Jungle doesn't have _that many_ forms, however I wanted to build an abstraction in React that would allow me to define a data schema in TypeScript and to have the abstraction provide strongly typed state management and validation in a way that afforded great editor auto completion.
 
-I also wanted a clear separation of concerns, i.e. I didn't want to litter my business logic with form state management too much (though the abstraction should allow the consumer to manually change values and internal state where required) - for that reason I wanted a separate library to deal with form state management that I could use independently from the rest of the logic of the feature.
+I also wanted a clear separation of concerns - I didn't want to have my UI components know anything about the form state management or validation logic. For that reason, I wanted a separate library to deal with form state management that I could use independently.
 
-I also explored a purely functional and strongly typed approach with Urban Jungle and leveraged the amazing [fp-ts](https://github.com/gcanti/fp-ts) library for the app, and for the form library. Apologies if you're not massively familiar with fp-ts or functional programming in general, I hope that the ideas I'm showing here will have merit irrespective of the actual implementation.
+As part of this work, I explored a purely functional and strongly typed approach. I leveraged the amazing [fp-ts](https://github.com/gcanti/fp-ts) library for the app, and for the form library.
+
+> Apologies if you're not massively familiar with fp-ts or functional programming in general, I hope that the ideas I'm showing here will have merit irrespective of the actual implementation.
 
 ## What does it look like?
 
-Whenever I build an abstraction like this, I always list out the requirements and then sketch out what the external API should look like. Usually I'll go through a few iterations before settling on the final API, and I do this inside my editor before I implement the internals.
+Whenever I build an abstraction like this, I always list out the requirements and then sketch out what the external API should look like. Usually I'll go through a few iterations before settling on the final API, and I do this inside my editor before I implement the internals. I find that by doing this, I start to build up an intuition for what the internal implementation should look like.
 
-That's more than enough talk - here's a quick video showcasing what it's like to use of the library to build a form:
+Here's a quick video showcasing what it's like to use of the library to build a simple form:
 
 <Video src="/use-form/use-form-usage.mp4" />
 
 And here's the code:
-
-```typescript
-type Fields = {
-  name: string;
-  nickname: string;
-  location: string;
-  avatar: ImageModel;
-};
-
-type ImageModel = {
-  uri: string;
-  width: number;
-  height: number;
-};
-
-const {
-  submit,
-  registerTextInput,
-  registerSinglePickerInput,
-  registerCameraField,
-} = useForm<Fields>(
-  {
-    name: "",
-    nickname: "",
-    location: "",
-    avatar: {
-      uri: "",
-      width: 0,
-      height: 0,
-    },
-  },
-  {
-    name: [constraints.isRequired, constraints.alphaNumeric],
-    nickname: [constraints.atLeastLength(5)],
-    location: [],
-    avatar: [constraints.isValidImageModel],
-  }
-);
-
-const onSubmit = () => {
-  pipe(
-    TE.fromEither(submit()),
-    TE.chain((values) => save(values))
-  );
-};
-
-return (
-  <FormContainer onSubmit={onSubmit}>
-    <TextField label="Name" {...registerTextInput("name")} />
-    <TextField label="Nickname" {...registerTextInput("nickname")} />
-    <PickerField
-      label="Location"
-      multiValue={false}
-      options={locations.map((value) => ({
-        value,
-        label: location,
-      }))}
-      {...registerSinglePickerInput("location")}
-    />
-    <CameraField
-      label="Picture"
-      type="plant"
-      {...registerCameraField("avatar")}
-    />
-  </FormContainer>
-);
-```
-
-Here's the same code with inline comments explaining a few bits and pieces:
 
 ```typescript
 // we'll define a schema of our form fields as a simple object type
@@ -165,13 +98,13 @@ return (
 );
 ```
 
-There are a few key things I would like to point out about the libraries use:
+There are a few key things I would like to point out from the above:
 
 **Type safety**
 
 I focused on ensuring that the `useForm` hook is _fully_ type safe. And I don't just mean that `useForm` returns type safe functions and values (i.e. `type RegisterTextInput = (key: string) => TextFieldProps`), but rather the type system _knows about the schema passed to the hook_ (i.e. `type RegisterTextInput = (key: StringKeys<Fields>) => TextFieldProps`).
 
-I'm a strong believer that leveraging the type system to this extent greatly reduces the number of bugs and inconsistencies that build up over time in a code base in addition to allowing for much easier and safer refactoring, as well as serving as a form of documentation for developers - not to mention the editor autocompletion which we'll get to later on.
+I'm a strong believer that leveraging the type system to this extent greatly reduces the number of bugs and inconsistencies that build up over time in a code base. In addition, refactoring is _much_ and safer. Types also serving as a form of living documentation for developers - not to mention the editor autocompletion which we'll get to later on.
 
 Here's an example of a type error when using an incompatible key when registering a field:
 
@@ -181,15 +114,15 @@ Here's an example of a type error when using an incompatible key when registerin
 
 **Developer experience**
 
-With everything I build, I strive to deliver the best developer experience I can. There are many different and important things that make for a great developer experience, however one that I find incredibly useful is to leverage TypeScript's ability to provide editor auto completion for domain specific types. I stove to implement `useForm` leveraging strong types as much as possible, to help with editor autocompletion.
+With everything I build, I strive to deliver the best developer experience I can. There are many different and important things that make for a great developer experience, however one that I find incredibly useful is to leverage TypeScript's ability to provide editor auto completion for domain specific types.
 
 Here's a couple of examples of editor autocompletion when registering a image fields:
 
 <Image src="/use-form/editor-autocompletion.png" width={1102} height={254} />
 
-> Because `useForm` is so strongly typed, vscode gives us a choice of keys that are compatible for registration with the `<CameraField />`
+> Because `useForm` is so strongly typed, editors with TypeScript intellisense will give us a choice of keys that are compatible for registration with the `<CameraField />`
 
-And another example for string fields:
+Here's another example for string fields:
 
 <Image
   src="/use-form/editor-autocompletion-string.png"
@@ -197,21 +130,23 @@ And another example for string fields:
   height={466}
 />
 
-> Similarly, vscode gives us a choice of keys that are compatible for registration with the `<TextField />`
+> Similarly, editors gives us a choice of keys that are compatible for registration with the `<TextField />`
 
 **Separation of concerns**
 
-The form state management (and validation) are grouped together in a single concern and is managed independently from the UI components. As an example, the `<TextField />` has no knowledge of the internal workings of the library, all it cares about is receiving a value and letting the parent component know when the value changes (as well as displaying error messages). This separation of concerns means that the form state management and the `<TextField />` component can change independently, as they have no direct dependency on one another (other than the facility to spread props over a field component to "register" register it, however this is simply a useful ergonomic shortcut, not a core part of the library).
+The form state management (and validation) are grouped together in a single module and is managed independently from the UI components. As an example, the `<TextField />` has no knowledge of the internal workings of the library, all it cares about is receiving a value and letting the parent component know when the value changes (as well as displaying error messages).
+
+This separation of concerns means that the form state management and the `<TextField />` component can change independently, as they have no direct dependency on one another - apart from the form state management's registration functions return the props that the UI components expect.
 
 In addition, the form state management and validation are completely separate to the business logic of what happens when the data is actually used (i.e. what happens when the form is submitted). The library provides a `submit` function that simply runs validation and provides the current values of the form fields, but it does not actually do anything with the data, not does it provide loading states or anything else. It's intentionally scoped to manage form state and validation really well and nothing more.
 
 **Constraints**
 
-The final thing I would like to point out is that not only are the fields themselves fully type safe to the schema, but the constraints are too.
+The final thing I would like to point out is that not only are the fields themselves fully type safe to the schema, but the validation constraints are too.
 
-The library uses [Valley](https://github.com/josephluck/valley) (a validation library I wrote) for it's validation, which expects strongly-typed constraint functions. These strong types are fed through from the schema such that it's only permitted by the compiler to provide string constraints for a schema key whose value a string.
+The library uses [Valley](https://github.com/josephluck/valley) (a validation library I wrote) for it's validation, which expects strongly-typed constraint functions. These strong types are fed through from the schema such that it's only possible to provide constraints that are typed to expect the same value as the schema defines.
 
-I find this to be a really important part of both the developer experience and the safety afforded by the library as it allows the developer to be confident that they are configuring their form correctly by ensuring that only compatible constraints are permitted be used against the strongly typed schema.
+I find this to be a really important part of both the developer experience and the safety afforded by the library as it allows the developer to be confident that they are configuring their form correctly by ensuring that only compatible constraints used. I liken this level of TypeScript usage to bowling with the guard railes up - you have no choice but to _on target_ (you might not get a perfect strike though 😉).
 
 Here's an example of the type error when using an incompatible number constraint against a string field:
 
@@ -227,22 +162,12 @@ Now we'll dive in to the implementation, which I will show you first and then at
 
 ```typescript
 import { FieldConstraintsMap, makeValidator } from "@josephluck/valley/lib/fp";
-import { ImageModel, makeImageModel } from "@urban-jungle/shared/models/image";
 
 import * as E from "fp-ts/lib/Either";
 import * as O from "fp-ts/lib/Option";
 import { pipe } from "fp-ts/lib/pipeable";
 import { useState } from "react";
 
-import { CameraFieldProps } from "../components/camera-field";
-import { DualNumberPickerFieldProps } from "../components/dual-number-picker-field";
-import { DualTextPickerFieldProps } from "../components/dual-text-picker-field";
-import { NumberFieldProps } from "../components/number-field";
-import {
-  MultiPickerFieldProps,
-  PickerValue,
-  SinglePickerFieldProps,
-} from "../components/picker-field";
 import { TextFieldProps } from "../components/text-field";
 
 type Fields = Record<string, any>;
@@ -256,14 +181,6 @@ export function useForm<Fs extends Fields>(
   constraints: FieldConstraintsMap<Fs>
 ) {
   type StringKeys = FilterTypeForKeys<Fs, string>;
-
-  type NumberKeys = FilterTypeForKeys<Fs, number>;
-
-  type MultiPickerKeys = FilterTypeForKeys<Fs, number[] | string[]>;
-
-  type SinglePickerKeys = FilterTypeForKeys<Fs, string | number | undefined>;
-
-  type CameraKeys = FilterTypeForKeys<Fs, ImageModel>;
 
   const doValidate = makeValidator<Fs>(constraints);
 
@@ -340,30 +257,6 @@ export function useForm<Fs extends Fields>(
       setValue(fieldKey, value);
     };
 
-  const registerOnChangeNumber =
-    <Fk extends keyof Fs>(fieldKey: Fk) =>
-    (value: number) => {
-      setValue(fieldKey, value);
-    };
-
-  const registerOnChangePickerMulti =
-    <Fk extends MultiPickerKeys>(fieldKey: Fk) =>
-    (value: PickerValue[]) => {
-      setValue(fieldKey, value as Fs[Fk]);
-    };
-
-  const registerOnChangePickerSingle =
-    <Fk extends SinglePickerKeys>(fieldKey: Fk) =>
-    (value: Fs[Fk]) => {
-      setValue(fieldKey, value);
-    };
-
-  const registerOnChangeCamera =
-    <Fk extends CameraKeys>(fieldKey: Fk) =>
-    (value: Fs[Fk]) => {
-      setValue(fieldKey, value);
-    };
-
   const registerTextInput = <Fk extends StringKeys>(
     fieldKey: Fk
   ): Partial<TextFieldProps> => ({
@@ -372,112 +265,6 @@ export function useForm<Fs extends Fields>(
     touched: touched[fieldKey],
     onBlur: registerBlur(fieldKey),
     onChangeText: registerOnChangeText(fieldKey),
-  });
-
-  const registerNumberInput = <Fk extends NumberKeys>(
-    fieldKey: Fk
-  ): Partial<NumberFieldProps> => ({
-    value: values[fieldKey],
-    error: errors[fieldKey],
-    touched: touched[fieldKey],
-    onBlur: registerBlur(fieldKey),
-    onChangeNumber: registerOnChangeNumber(fieldKey),
-  });
-
-  const registerMultiPickerInput = <Fk extends MultiPickerKeys>(
-    fieldKey: Fk
-  ): Pick<
-    MultiPickerFieldProps<PickerValue>,
-    "value" | "error" | "onChange" | "touched"
-  > => ({
-    value: values[fieldKey],
-    error: errors[fieldKey],
-    touched: touched[fieldKey],
-    onChange: registerOnChangePickerMulti(fieldKey),
-  });
-
-  const registerSinglePickerInput = <Fk extends SinglePickerKeys>(
-    fieldKey: Fk
-  ): Pick<
-    SinglePickerFieldProps<Fs[Fk]>,
-    "value" | "error" | "onChange" | "touched"
-  > => ({
-    value: values[fieldKey],
-    error: errors[fieldKey],
-    touched: touched[fieldKey],
-    onChange: registerOnChangePickerSingle(fieldKey),
-  });
-
-  const registerCameraField = <Fk extends CameraKeys>(
-    fieldKey: Fk
-  ): Pick<CameraFieldProps, "value" | "error" | "touched" | "onChange"> => {
-    const value: ImageModel = pipe(
-      O.fromNullable(values[fieldKey] as ImageModel),
-      O.filter((image) => Boolean(image) && Boolean(image.uri)),
-      O.getOrElse(() => makeImageModel())
-    );
-    return {
-      value,
-      error: errors[fieldKey],
-      touched: touched[fieldKey],
-      onChange: registerOnChangeCamera(fieldKey) as (value: ImageModel) => void,
-    };
-  };
-
-  const registerDualTextPickerField = <
-    Fk extends StringKeys,
-    Fk2 extends SinglePickerKeys
-  >(
-    textFieldKey: Fk,
-    pickerFieldKey: Fk2
-  ): Pick<
-    DualTextPickerFieldProps<Fs[Fk2]>,
-    | "textValue"
-    | "pickerValue"
-    | "onChangeText"
-    | "onChangePicker"
-    | "error"
-    | "touched"
-    | "onBlur"
-  > => ({
-    textValue: values[textFieldKey],
-    pickerValue: values[pickerFieldKey],
-    onChangeText: registerOnChangeText(textFieldKey),
-    onChangePicker: registerOnChangePickerSingle(pickerFieldKey),
-    error: errors[textFieldKey] || errors[pickerFieldKey],
-    touched: touched[textFieldKey] || touched[pickerFieldKey],
-    onBlur: () => {
-      registerBlur(textFieldKey)();
-      registerBlur(pickerFieldKey)();
-    },
-  });
-
-  const registerDualNumberPickerField = <
-    Fk extends NumberKeys,
-    Fk2 extends SinglePickerKeys
-  >(
-    numberFieldKey: Fk,
-    pickerFieldKey: Fk2
-  ): Pick<
-    DualNumberPickerFieldProps<Fs[Fk2]>,
-    | "numberValue"
-    | "pickerValue"
-    | "onChangeNumber"
-    | "onChangePicker"
-    | "error"
-    | "touched"
-    | "onBlur"
-  > => ({
-    numberValue: values[numberFieldKey],
-    pickerValue: values[pickerFieldKey],
-    onChangeNumber: registerOnChangeNumber(numberFieldKey),
-    onChangePicker: registerOnChangePickerSingle(pickerFieldKey),
-    error: errors[numberFieldKey] || errors[pickerFieldKey],
-    touched: touched[numberFieldKey] || touched[pickerFieldKey],
-    onBlur: () => {
-      registerBlur(numberFieldKey)();
-      registerBlur(pickerFieldKey)();
-    },
   });
 
   return {
@@ -490,12 +277,6 @@ export function useForm<Fs extends Fields>(
     reset,
     submit,
     registerTextInput,
-    registerNumberInput,
-    registerMultiPickerInput,
-    registerSinglePickerInput,
-    registerCameraField,
-    registerDualTextPickerField,
-    registerDualNumberPickerField,
   };
 }
 
@@ -516,15 +297,17 @@ const getInitialErrors = <Fs extends Record<string, any>>(
   );
 ```
 
+Note, in the code above, I've only included support for text fields. You can imagine that this library could support any number of form field types, depending on the application. For example, Urban Jungle has a form field component for taking a picture and uploading it. This field is _highly_ specific to Urban Jungle, and being able to have first-class form state management and validation for it truly highlights the power of this approach.
+
 ### How the types work
 
-The first thing I'd like to pull out is how the type safety works from the schema. You'll notice that there's a generic type argument to `useForm` which is constrained to a `Record<string, any>` type. This constraint ensures that the form hook only manages objects. The generic type argument can be inferred from the initial data argument, but it's advised to manually provide an explicit type.
+The first thing I'd like to highlight is how the type safety works from the schema. You'll notice that there's a generic type argument to `useForm` which is constrained to a `Record<string, any>` type. This constraint ensures that the form hook only manages objects. The generic type argument can be inferred from the initial data argument, but it's advised to manually provide an explicit type.
 
-Built up from the generic type, additional types are created such as `type StringKeys`, `type NumberKeys`, `type MultiPickerKeys` and `type CameraKeys`. These additional types are used in the registration functions to strongly type the name of the field that should be registered according to compatible keys in the schema.
+Built up from the generic type, additional types are created such as `type StringKeys`. These additional types are used in the registration functions to strongly type the name of the field that should be registered according to compatible keys in the schema.
 
 ## Registration functions
 
-One thing I quite like about this library is the ease in which you can bind values, callbacks, error states etc to a component. For example, `<TextField {...registerTextInput('name')} />` is all you need.
+One thing I quite like about this library is the ease in which you can bind values, callbacks, error states etc to a form field component. For example, `<TextField {...registerTextInput('name')} />` is all you need to tie up validation and state from the library to a form field.
 
 The registration functions are typed to take a key from the schema that matches the type of input, aka, `string` for `<TextField />` components via `registerTextInput()`, `number` for `<NumberField />` components (via `registerNumberInput()`), etc. The registration functions return an object of props that the respective component uses. In the libraries implementation, you'll notice the prop types are imported and are the return types of the registration functions.
 
@@ -534,7 +317,7 @@ Unfortunately, as the requirements for these registration functions are heavily 
 
 ## Validation
 
-You'll notice a `doValidate` function that uses Valley's `makeValidator` factory function. Valley is a validation library I made (that I wanted to use for Urban Jungle), however it would be trivial to swap out Valley for another validation library. `yup` would make a good replacement.
+You'll notice a `doValidate` function that uses Valley's `makeValidator` factory function. Valley is a validation library I made (that I wanted to use for Urban Jungle), however it would be trivial to swap out Valley for another validation library. `yup` would be a popular alternative.
 
 I chose to use Valley as it implements `fp-ts` compatible validation constraints requirements using `Either` and `TaskEither` which Urban Jungle uses heavily for controlling business logic in a pure and functional way.
 
