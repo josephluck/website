@@ -1,93 +1,116 @@
 import { HTMLAttributes } from "react";
-import css from "styled-jsx/css";
 import { symbols, useTheme } from "./theme";
 
-export const HeadingOne = (props: HTMLAttributes<HTMLHeadingElement>) => (
-  <>
-    <h1 {...props} />
-    <style jsx>
-      {`
-        h1 {
-          font-size: ${symbols.font._28.size};
-          line-height: ${symbols.font._28.lineHeight};
-          font-weight: ${symbols.fontWeight._600};
-        }
-      `}
-    </style>
-  </>
-);
+export const HeadingOne = (props: HTMLAttributes<HTMLHeadingElement>) => {
+  const theme = useTheme();
+  return (
+    <>
+      <h1 {...props} />
+      <style jsx>
+        {`
+          h1 {
+            font-size: ${symbols.font._28.size};
+            line-height: ${symbols.font._28.lineHeight};
+            font-weight: ${symbols.fontWeight._600};
+            color: ${theme.text};
+          }
+        `}
+      </style>
+    </>
+  );
+};
 
-export const HeadingTwo = (props: HTMLAttributes<HTMLHeadingElement>) => (
-  <>
-    <h2 {...props} />
-    <style jsx>
-      {`
-        h2 {
-          font-size: ${symbols.font._22.size};
-          line-height: ${symbols.font._22.lineHeight};
-          font-weight: ${symbols.fontWeight._500};
-        }
-      `}
-    </style>
-  </>
-);
+export const HeadingTwo = (props: HTMLAttributes<HTMLHeadingElement>) => {
+  const theme = useTheme();
+  return (
+    <>
+      <h2 {...props} />
+      <style jsx>
+        {`
+          h2 {
+            font-size: ${symbols.font._22.size};
+            line-height: ${symbols.font._22.lineHeight};
+            font-weight: ${symbols.fontWeight._500};
+            color: ${theme.text};
+          }
+        `}
+      </style>
+    </>
+  );
+};
 
-export const HeadingThree = (props: HTMLAttributes<HTMLHeadingElement>) => (
-  <>
-    <h3 {...props} />
-    <style jsx>
-      {`
-        h3 {
-          font-size: ${symbols.font._18.size};
-          line-height: ${symbols.font._18.lineHeight};
-          font-weight: ${symbols.fontWeight._500};
-        }
-      `}
-    </style>
-  </>
-);
+export const HeadingThree = (props: HTMLAttributes<HTMLHeadingElement>) => {
+  const theme = useTheme();
+  return (
+    <>
+      <h3 {...props} />
+      <style jsx>
+        {`
+          h3 {
+            font-size: ${symbols.font._18.size};
+            line-height: ${symbols.font._18.lineHeight};
+            font-weight: ${symbols.fontWeight._500};
+            color: ${theme.text};
+          }
+        `}
+      </style>
+    </>
+  );
+};
 
-export const HeadingFour = (props: HTMLAttributes<HTMLHeadingElement>) => (
-  <>
-    <h4 {...props} />
-    <style jsx>
-      {`
-        h4 {
-          font-size: ${symbols.font._16.size};
-          line-height: ${symbols.font._16.lineHeight};
-          font-weight: ${symbols.fontWeight._500};
-        }
-      `}
-    </style>
-  </>
-);
+export const HeadingFour = (props: HTMLAttributes<HTMLHeadingElement>) => {
+  const theme = useTheme();
+  return (
+    <>
+      <h4 {...props} />
+      <style jsx>
+        {`
+          h4 {
+            font-size: ${symbols.font._16.size};
+            line-height: ${symbols.font._16.lineHeight};
+            font-weight: ${symbols.fontWeight._500};
+            color: ${theme.text};
+          }
+        `}
+      </style>
+    </>
+  );
+};
 
-export const Paragraph = (props: HTMLAttributes<HTMLParagraphElement>) => (
-  <>
-    <p {...props} />
-    <style jsx>
-      {`
-        p {
-          font-size: ${symbols.font.paragraph.size};
-          line-height: ${symbols.font.paragraph.lineHeight};
-        }
-      `}
-    </style>
-  </>
-);
+export const Paragraph = (props: HTMLAttributes<HTMLParagraphElement>) => {
+  const theme = useTheme();
+  return (
+    <>
+      <p {...props} />
+      <style jsx>
+        {`
+          p {
+            font-size: ${symbols.font.paragraph.size};
+            line-height: ${symbols.font.paragraph.lineHeight};
+            color: ${theme.text};
+          }
+        `}
+      </style>
+    </>
+  );
+};
 
-export const Strong = (props: HTMLAttributes<HTMLSpanElement>) => (
-  <>
-    <strong {...props} />
-    <style jsx>
-      {`
-        strong {
-          font-weight: ${symbols.fontWeight._600};
-        }
-      `}
-    </style>
-  </>
-);
+export const Strong = (props: HTMLAttributes<HTMLSpanElement>) => {
+  const theme = useTheme();
+  return (
+    <>
+      <strong {...props} />
+      <style jsx>
+        {`
+          strong {
+            font-weight: ${symbols.fontWeight._600};
+            color: ${theme.text};
+          }
+        `}
+      </style>
+    </>
+  );
+};
 
 export const ContentHeadingOne = (
   props: HTMLAttributes<HTMLHeadingElement>
@@ -171,13 +194,6 @@ export const BlockQuote = (props: HTMLAttributes<HTMLSpanElement>) => {
             font-weight: ${symbols.fontWeight._500};
             color: ${theme.blockQuoteText};
             font-style: normal;
-          }
-          blockquote p {
-            margin: 0;
-            font-size: inherit;
-            line-height: inherit;
-            font-weight: inherit;
-            color: inherit;
           }
         `}
       </style>

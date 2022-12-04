@@ -92,6 +92,7 @@ const GlobalStyle = () => {
         box-sizing: border-box;
         font-family: inherit;
         text-decoration: none;
+        transition: all 200ms ease;
       }
       html,
       body {
@@ -293,6 +294,18 @@ const GlobalStyle = () => {
         border: solid 1px ${theme.border};
         border-radius: 6px;
         padding: ${symbols.spacing._2};
+      }
+
+      blockquote p {
+        margin: 0;
+        font-size: inherit !important;
+        line-height: inherit;
+        font-weight: inherit;
+        color: inherit !important;
+      }
+
+      li {
+        color: ${theme.text};
       }
     `}</style>
   );
