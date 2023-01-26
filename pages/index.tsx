@@ -20,11 +20,10 @@ export default function Page() {
         josephreubenluck@gmail.com
       </HeadingFour>
       <HeadingTwo style={{ marginBottom: symbols.spacing._32 }}>
-        👋 I&apos;m a product engineer based in London.
+        👋 I&apos;m a senior software engineer based in London.
       </HeadingTwo>
       <Paragraph style={{ marginBottom: symbols.spacing._16 }}>
-        Building mobile and web design systems currently under NDA 🤐.
-        Previously lead engineer at Mettle by Natwest.
+        Building banks at Mettle by Natwest.
       </Paragraph>
       <Paragraph style={{ marginBottom: symbols.spacing._16 }}>
         Passionate about design, user experience and functional programming.
