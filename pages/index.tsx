@@ -23,11 +23,15 @@ export default function Page() {
         👋 I&apos;m a senior software engineer based in London.
       </HeadingTwo>
       <Paragraph style={{ marginBottom: symbols.spacing._16 }}>
-        Building banks at Mettle by Natwest.
+        Building banks at
+        <a href="https://mettle.co.uk" target="_blank" rel="noreferrer">
+          Mettle
+        </a>{" "}
+        by Natwest.
       </Paragraph>
       <Paragraph style={{ marginBottom: symbols.spacing._16 }}>
         Passionate about design, user experience and functional programming.
-        Expert at React, React Native and TypeScript.
+        Expert at React, React Native, GraphQL and TypeScript.
       </Paragraph>
       <Paragraph>
         Maker of{" "}
