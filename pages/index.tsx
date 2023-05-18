@@ -23,7 +23,7 @@ export default function Page() {
         👋 I&apos;m a senior software engineer based in London.
       </HeadingTwo>
       <Paragraph style={{ marginBottom: symbols.spacing._16 }}>
-        Building banks at
+        Building banks at{" "}
         <a href="https://mettle.co.uk" target="_blank" rel="noreferrer">
           Mettle
         </a>{" "}
