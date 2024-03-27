@@ -159,10 +159,13 @@ export const Navigation = () => {
           </Link>
         </LogoWrap>
         <Links>
-          <NavigationLink href="/blog">Blog</NavigationLink>
+          {/* <NavigationLink href="/blog">Blog</NavigationLink> */}
           <NavigationLink href="/resume">Resume</NavigationLink>
           <NavigationLink href="/recommendations">
             Recommendations
+          </NavigationLink>
+          <NavigationLink href="https://photography.josephluck.co.uk">
+            Photography
           </NavigationLink>
           <Toggle
             onToggle={() => setTheme(themeName === "light" ? "dark" : "light")}
