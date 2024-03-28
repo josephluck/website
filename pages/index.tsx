@@ -84,6 +84,17 @@ export default function Page() {
         </a>
         .
       </Paragraph>
+      <Paragraph>
+        I also take{" "}
+        <a
+          href="https://photography.josephluck.co.uk"
+          target="_blank"
+          rel="noreferrer"
+        >
+          photos
+        </a>{" "}
+        sometimes.
+      </Paragraph>
     </>
   );
 }
