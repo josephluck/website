@@ -33,7 +33,7 @@ export default function Page() {
         Passionate about design, user experience and functional programming.
         Expert at React, React Native, GraphQL and TypeScript.
       </Paragraph>
-      <Paragraph>
+      <Paragraph style={{ marginBottom: symbols.spacing._16 }}>
         Maker of{" "}
         <a
           href="https://github.com/josephluck/internote"
