@@ -159,12 +159,13 @@ export const Navigation = () => {
           </Link>
         </LogoWrap>
         <Links>
-          <NavigationLink href="/recommendations">References</NavigationLink>
+          <NavigationLink href="/work">Work</NavigationLink>
+          <NavigationLink href="/references">References</NavigationLink>
           <NavigationLink href="/resume">Resume</NavigationLink>
-          <Toggle
+          {/* <Toggle
             onToggle={() => setTheme(themeName === "light" ? "dark" : "light")}
             active={themeName === "light"}
-          />
+          /> */}
         </Links>
       </Inner>
     </Wrapper>
