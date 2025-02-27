@@ -20,12 +20,12 @@ export default function Page() {
         josephreubenluck@gmail.com
       </HeadingFour>
       <HeadingTwo style={{ marginBottom: symbols.spacing._32 }}>
-        👋 I&apos;m a senior software engineer based in London.
+        👋 I&apos;m a staff software engineer based in London.
       </HeadingTwo>
       <Paragraph style={{ marginBottom: symbols.spacing._16 }}>
-        Building banks at{" "}
-        <a href="https://mettle.co.uk" target="_blank" rel="noreferrer">
-          Mettle
+        Building a digital bank at{" "}
+        <a href="https://nwboxed.com/" target="_blank" rel="noreferrer">
+          NatWest Boxed
         </a>{" "}
         by Natwest.
       </Paragraph>
